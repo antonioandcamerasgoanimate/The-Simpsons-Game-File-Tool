@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- xcompress.dll (XDK XMemCompress/XMemDecompress) is a 32-bit PE.
+         The whole app must run x86 or the P/Invoke calls will fail to load it. -->
+    <PlatformTarget>x86</PlatformTarget>
+    <AssemblyName>TSGFileTool</AssemblyName>
+    <RootNamespace>TSGFileTool</RootNamespace>
+    <ApplicationIcon>images.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="images.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Bundled native dependency, copied next to the exe -->
+    <None Include="Native\xcompress.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="BlenderScript\tsg_import.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

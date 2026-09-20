@@ -1,0 +1,192 @@
+<Window x:Class="TSGFileTool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="The Simpsons Game - EA File Tool" Height="760" Width="1280"
+        Background="#FF1E1E1E">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Background" Value="#FF3C3C3C"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#FF555555"/>
+        </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="Foreground" Value="Black"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FFDDDDDD"/>
+        </Style>
+        <Style TargetType="DataGrid">
+            <Setter Property="Background" Value="#FF252526"/>
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="RowBackground" Value="#FFF3F3F3"/>
+            <Setter Property="AlternatingRowBackground" Value="#FFE7E7E7"/>
+        </Style>
+    </Window.Resources>
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" Background="#FF2D2D30" Foreground="White">
+            <MenuItem Header="_File" Foreground="Black">
+                <MenuItem Header="Open STR Archive (.str)..." Click="OpenStr_Click"/>
+                <MenuItem Header="Open Texture (.itxd)..." Click="OpenItxd_Click"/>
+                <MenuItem Header="Open VP6 Video (.vp6)..." Click="OpenVp6_Click"/>
+                <MenuItem Header="Open RenderWare Stream (.dff/.rws/.txd)..." Click="OpenRw_Click"/>
+                <MenuItem Header="Open Raw / Other File..." Click="OpenSnuMus_Click"/>
+                <Separator/>
+                <MenuItem Header="Exit" Click="Exit_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <TabControl x:Name="MainTabs" Margin="4">
+            <!-- STR / SToc ARCHIVE TAB -->
+            <TabItem Header="STR Archive (.str)">
+                <DockPanel Margin="6">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Open .str..." Click="OpenStr_Click"/>
+                            <Button Content="Extract Selected" Click="ExtractSelectedStr_Click"/>
+                            <Button Content="Extract All + manifest.xml" Click="ExtractAllStr_Click"/>
+                            <Button Content="Open Selected in Texture Tab" Click="OpenSelectedInTextureTab_Click"/>
+                            <Button Content="Replace Parent TOC Entry..." Click="ReplaceTocEntry_Click"/>
+                            <Button Content="Save Archive As..." Click="SaveStrAs_Click"/>
+                            <TextBlock Text="{Binding StrSummary}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Rename selected to:" VerticalAlignment="Center" Margin="4,0,4,4"/>
+                            <TextBox x:Name="RenameBox" Width="220" Margin="0,0,4,4"/>
+                            <Button Content="Apply Name" Click="ApplyName_Click"/>
+                            <Button Content="Save Names (.names.xml)" Click="SaveNames_Click"/>
+                            <Button Content="Export meta.xml for Selected" Click="ExportStrMeta_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <DataGrid x:Name="StrGrid" AutoGenerateColumns="False" IsReadOnly="True"
+                              SelectionChanged="StrGrid_SelectionChanged">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="40"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="260"/>
+                            <DataGridTextColumn Header="Tag" Binding="{Binding Tag}" Width="80"/>
+                            <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="90"/>
+                            <DataGridTextColumn Header="Parent TOC Entry" Binding="{Binding ParentTocEntryIndex}" Width="120"/>
+                            <DataGridTextColumn Header="Build Path" Binding="{Binding BuildPath}" Width="420"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+
+            <!-- TEXTURE / ITXD TAB -->
+            <TabItem Header="Texture (.itxd)">
+                <DockPanel Margin="6">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Open .itxd..." Click="OpenItxd_Click"/>
+                            <CheckBox x:Name="UntileCheck" Content="Apply untile (experimental)" IsChecked="True" VerticalAlignment="Center" Margin="8,0"/>
+                            <Button Content="Preview Selected" Click="PreviewTexture_Click"/>
+                            <Button Content="Export Selected as .png" Click="ExportTexturePng_Click"/>
+                            <Button Content="Export Selected raw + meta.xml" Click="ExportTextureRaw_Click"/>
+                            <Button Content="Import PNG into Selected (same size)..." Click="ImportTexturePng_Click"/>
+                            <Button Content="Import PNG (resize)..." Click="ImportTexturePngResize_Click"/>
+                            <Button Content="Export Whole .itxd As..." Click="ExportItxdFile_Click"/>
+                            <TextBlock Text="{Binding ItxdSummary}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+                        <DataGrid x:Name="ItxdGrid" Grid.Column="0" AutoGenerateColumns="False" IsReadOnly="True"
+                                  SelectionChanged="ItxdGrid_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="40"/>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="160"/>
+                                <DataGridTextColumn Header="W" Binding="{Binding Width}" Width="60"/>
+                                <DataGridTextColumn Header="H" Binding="{Binding Height}" Width="60"/>
+                                <DataGridTextColumn Header="Format" Binding="{Binding FormatName}" Width="100"/>
+                                <DataGridTextColumn Header="Offset" Binding="{Binding DataOffset}" Width="90"/>
+                                <DataGridTextColumn Header="Size" Binding="{Binding DataSize}" Width="90"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Border Grid.Column="1" Background="#FF111111" BorderBrush="#FF444444" BorderThickness="1" Margin="6,0,0,0">
+                            <Image x:Name="TexturePreview" Stretch="Uniform" Margin="4"/>
+                        </Border>
+                    </Grid>
+                </DockPanel>
+            </TabItem>
+
+            <!-- VP6 / SCHl TAB -->
+            <TabItem Header="VP6 Video (SCHl)">
+                <DockPanel Margin="6">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                        <Button Content="Open .vp6..." Click="OpenVp6_Click"/>
+                        <Button Content="Extract Selected Chunk" Click="ExtractSelectedChunk_Click"/>
+                        <Button Content="Extract All Chunks + index.xml" Click="ExtractAllChunks_Click"/>
+                        <Button Content="Export meta.xml" Click="ExportVp6Meta_Click"/>
+                        <TextBlock Text="{Binding Vp6Summary}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                    </StackPanel>
+                    <DataGrid x:Name="Vp6Grid" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="40"/>
+                            <DataGridTextColumn Header="Tag" Binding="{Binding Tag}" Width="80"/>
+                            <DataGridTextColumn Header="Offset" Binding="{Binding Offset}" Width="100"/>
+                            <DataGridTextColumn Header="Payload Size" Binding="{Binding PayloadSize}" Width="110"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+            <!-- RENDERWARE TAB -->
+            <TabItem Header="RenderWare (.dff/.rws/.txd)">
+                <DockPanel Margin="6">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Open .dff/.rws/.txd..." Click="OpenRw_Click"/>
+                            <Button Content="Extract Selected Section" Click="ExtractRwSection_Click"/>
+                            <Button Content="Extract All Sections + index.xml" Click="ExtractAllRw_Click"/>
+                            <TextBlock Text="{Binding RwSummary}" VerticalAlignment="Center" Margin="12,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <DataGrid x:Name="RwGrid" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="#" Binding="{Binding Index}" Width="40"/>
+                            <DataGridTextColumn Header="Section" Binding="{Binding Indented}" Width="260"/>
+                            <DataGridTextColumn Header="Offset" Binding="{Binding Offset}" Width="100"/>
+                            <DataGridTextColumn Header="Size" Binding="{Binding Size}" Width="100"/>
+                            <DataGridTextColumn Header="Library Id" Binding="{Binding LibraryIdHex}" Width="100"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+            <!-- RAW / OTHER FILES TAB -->
+            <TabItem Header="Raw / Other Files">
+                <DockPanel Margin="6">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Open file..." Click="OpenSnuMus_Click"/>
+                            <Button Content="Probe Format" Click="ProbeFormat_Click"/>
+                            <TextBlock Text="Offset:" VerticalAlignment="Center" Margin="12,0,4,0"/>
+                            <TextBox x:Name="ManualOffset" Width="90" Text="0"/>
+                            <TextBlock Text="Length:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                            <TextBox x:Name="ManualLength" Width="90" Text="0"/>
+                            <Button Content="Extract Raw Range" Click="ExtractManualRange_Click"/>
+                            <Button Content="Try LZX Decompress Range (xcompress.dll)" Click="DecompressManualRange_Click"/>
+                            <Button Content="Try LZX Decompress Range (Managed C#)" Click="DecompressManualRangeManaged_Click"/>
+                            <Button Content="Try RefPack Decompress Range" Click="DecompressRefPackRange_Click"/>
+                            <Button Content="Try Zlib Decompress Range" Click="DecompressZlibRange_Click"/>
+                            <Button Content="Scan Whole File for RefPack/Zlib Headers" Click="ScanCodecHeaders_Click"/>
+                            <Button Content="Import/Replace Whole File..." Click="ImportWholeFile_Click"/>
+                            <Button Content="Export meta.xml" Click="ExportRawMeta_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBox x:Name="HexView" DockPanel.Dock="Bottom" Height="240" FontFamily="Consolas"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                             IsReadOnly="True" TextWrapping="NoWrap" Background="#FF1B1B1B" Foreground="#FF7FDBFF"/>
+                </DockPanel>
+            </TabItem>
+
+            
+        </TabControl>
+    </DockPanel>
+</Window>
